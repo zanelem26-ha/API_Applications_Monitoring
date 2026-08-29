@@ -27,20 +27,15 @@ namespace ApplicationsMonitoring.API.Controllers
             return Ok(comments);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetCommentById(int id)
+        [HttpGet("incident/{incidentId}")]
+        public async Task<IActionResult> GetCommentsByIncident(int incidentId)
         {
-            var comment = await _context.IncidentComments
-                .Include(i => i.Incident)
+            var comments = await _context.IncidentComments
+                .Where(c => c.IncidentId == incidentId)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(a => a.IncidentCommentId == id);
+                .ToListAsync();
 
-            if (comment == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(comment);
+            return Ok(comments);
         }
 
 
@@ -62,7 +57,7 @@ namespace ApplicationsMonitoring.API.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(
-                nameof(GetCommentById),
+                nameof(GetCommentsByIncident),
                 new { id = comment.IncidentCommentId },
                 comment);
         }
